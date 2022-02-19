@@ -21,9 +21,9 @@ Resources:
       Policies:
         PasswordPolicy:
           MinimumLength: 8
-      AutoVerifiedAttribute:
+      AutoVerifiedAttributes:
         - email
-      UsernameAttribute:
+      UsernameAttributes:
         - email
       Schema:
         - AttributeDataType: String
@@ -31,7 +31,7 @@ Resources:
           Required: false
 
   UserPoolClient:
-    Type: AWS::Congnito::UserPoolClient
+    Type: AWS::Cognito::UserPoolClient
     Properties:
       UserPoolId: !Ref UserPool
       ClientName: !Sub ${AppName}-UserPoolClient
@@ -50,4 +50,46 @@ Resources:
     Properties: 
       Domain: !Sub ${AppName}-${AWS::AccountId}
       UserPoolId: !Ref UserPool
+
+  AdminUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties: 
+      GroupName: Admins
+      Description: Administration User Group
+      Precedence: 0
+      UserPoolId: !Ref UserPool
+
+  AdminUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      Username: !Ref AdminEmail
+      DesiredDeliveryMediums: 
+        - EMAIL
+      ForceAliasCreation: true
+      UserAttributes: 
+        - Name: email
+          Value: !Ref AdminEmail
+      UserPoolId: !Ref UserPool
         
+  AddUserToGroup:
+    Type: AWS::Cognito::UserPoolUserToGroupAttachment
+    Properties: 
+      GroupName: !Ref AdminUserGroup
+      Username: !Ref AdminUser
+      UserPoolId: !Ref UserPool
+
+
+Outputs:
+  UserPoolId:
+    Description: "User pool ID"
+    Value: !Ref UserPool
+    Export:
+      Name: !Sub ${AppName}:UserPoolId
+
+  UserPoolClientId:
+    Description: "Application client ID"
+    Value: !Ref UserPoolClient
+
+  AuthUrl:
+    Description: "URL used for authentication"
+    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com

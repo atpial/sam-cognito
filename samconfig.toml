@@ -1,0 +1,11 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "sam-cognito"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1wcc1rlbjeh9t"
+s3_prefix = "sam-cognito"
+region = "us-east-2"
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "AppName=\"cogapp\" ClientDomains=\"https://www.example.com/callback,https://www.example.com/signout\" AdminEmail=\"atahar.nur@shadhin.com\""
+image_repositories = []
