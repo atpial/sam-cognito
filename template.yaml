@@ -78,6 +78,20 @@ Resources:
       Username: !Ref AdminUser
       UserPoolId: !Ref UserPool
 
+  TriggerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 5
+      Handler: app.lambda_handler
+      Runtime: python3.8
+      CodeUri: src/
+      Events:
+        CognitoTrigger:
+          Type: Cognito
+          Properties:
+            Trigger: PreAuthentication
+            UserPool: !Ref UserPool
+
 
 Outputs:
   UserPoolId:

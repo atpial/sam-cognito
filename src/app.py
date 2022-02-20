@@ -1,9 +1,6 @@
-import json
 
 def lambda_handler(event, context):
-    return{
-        "statusCode" : 200,
-        "body" : json.dumps({
-            "message":"Hello from cognito"
-        })
-    }
+    if event['callerContext']['clientId'] == "<user pool app client id to be blocked>":
+        raise Exception("Cannot authenticate users from this user pool app client")
+
+    return event
