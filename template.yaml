@@ -9,7 +9,7 @@ Parameters:
   ClientDomains:
     Type: CommaDelimitedList
     Description: List of domains
-  AdminEmail:
+  UserEmail:
     Type: String
     Description: Admin email address
 
@@ -56,31 +56,31 @@ Resources:
       Domain: !Sub ${AppName}-${AWS::AccountId}
       UserPoolId: !Ref UserPool
 
-  AdminUserGroup:
+  UserGroup:
     Type: AWS::Cognito::UserPoolGroup
     Properties: 
-      GroupName: Admins
-      Description: Administration User Group
+      GroupName: Users
+      Description: User Group
       Precedence: 0
       UserPoolId: !Ref UserPool
 
-  AdminUser:
+  GeneralUser:
     Type: AWS::Cognito::UserPoolUser
     Properties:
-      Username: !Ref AdminEmail
+      Username: !Ref UserEmail
       DesiredDeliveryMediums: 
         - EMAIL
       ForceAliasCreation: true
       UserAttributes: 
         - Name: email
-          Value: !Ref AdminEmail
+          Value: !Ref UserEmail
       UserPoolId: !Ref UserPool
         
-  AddUserToGroup:
+  AddUserToUserGroup:
     Type: AWS::Cognito::UserPoolUserToGroupAttachment
     Properties: 
-      GroupName: !Ref AdminUserGroup
-      Username: !Ref AdminUser
+      GroupName: !Ref UserGroup
+      Username: !Ref GeneralUser
       UserPoolId: !Ref UserPool
 
   TriggerFunction:
