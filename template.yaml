@@ -36,14 +36,19 @@ Resources:
       UserPoolId: !Ref UserPool
       ClientName: !Sub ${AppName}-UserPoolClient
       GenerateSecret: false
+      SupportedIdentityProviders:
+        - COGNITO
       CallbackURLs: !Ref ClientDomains
       LogoutURLs: !Ref ClientDomains
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows:
         - code
+        - implicit
+        # - client_credentials
       AllowedOAuthScopes:
         - email
         - openid
+        - profile
 
   UserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
@@ -89,6 +94,7 @@ Resources:
         CognitoTrigger:
           Type: Cognito
           Properties:
+            # Trigger: PreSignUp
             Trigger: PreAuthentication
             UserPool: !Ref UserPool
 
