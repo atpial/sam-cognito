@@ -64,24 +64,24 @@ Resources:
       Precedence: 0
       UserPoolId: !Ref UserPool
 
-  GeneralUser:
-    Type: AWS::Cognito::UserPoolUser
-    Properties:
-      Username: !Ref UserEmail
-      DesiredDeliveryMediums: 
-        - EMAIL
-      ForceAliasCreation: true
-      UserAttributes: 
-        - Name: email
-          Value: !Ref UserEmail
-      UserPoolId: !Ref UserPool
+  # GeneralUser:
+  #   Type: AWS::Cognito::UserPoolUser
+  #   Properties:
+  #     Username: !Ref UserEmail
+  #     DesiredDeliveryMediums: 
+  #       - EMAIL
+  #     ForceAliasCreation: true
+  #     UserAttributes: 
+  #       - Name: email
+  #         Value: !Ref UserEmail
+  #     UserPoolId: !Ref UserPool
         
-  AddUserToUserGroup:
-    Type: AWS::Cognito::UserPoolUserToGroupAttachment
-    Properties: 
-      GroupName: !Ref UserGroup
-      Username: !Ref GeneralUser
-      UserPoolId: !Ref UserPool
+  # AddUserToUserGroup:
+  #   Type: AWS::Cognito::UserPoolUserToGroupAttachment
+  #   Properties: 
+  #     GroupName: !Ref UserGroup
+  #     Username: !Ref GeneralUser
+  #     UserPoolId: !Ref UserPool
 
   TriggerFunction:
     Type: AWS::Serverless::Function
