@@ -4,41 +4,46 @@ from dotenv import load_dotenv
 load_dotenv()
 
 region = os.getenv('COGNITO_REGION')
-username = 'atahar.nur@shadhinlab.com'
-password = 'gjNH46a2MEyjiTg'
 
 client = boto3.client('cognito-idp', region)
-response = client.initiate_auth(
-    ClientId = os.getenv('COGNITO_USER_CLIENT_ID'),
-    AuthFlow = 'USER_PASSWORD_AUTH',
-    AuthParameters = {
-        'USERNAME': username,
-        'PASSWORD': password
-    }
-)
-# print(response)
 
-# print('AccessToken: ', response['AuthenticationResult']['AccessToken'])
-# print('RefreshToken: ', response['AuthenticationResult']['RefreshToken'])
+ERROR = 0
+SUCCESS = 1
 
-access_token = response['AuthenticationResult']['AccessToken']
+def authenticate(username, password):
+    try:
+        response = client.initiate_auth(
+            ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
+            AuthFlow = 'USER_PASSWORD_AUTH',
+            Username=username,
+            Password=password)
+        access_token = response['AuthenticationResult']['AccessToken']
+        refresh_token = response['AuthenticationResult']['RefreshToken']
+        print('AccessToken: ',access_token)
+        print('RefreshToken: ',refresh_token)
+    except client.exceptions.UserNotFoundException as e:
+        return ERROR
+    except client.exceptions.UserNotConfirmedException as e:
+        return ERROR
+    except Exception as e:
+        print(e)
+        return ERROR
+    return SUCCESS
+    
+def lambda_handler(event, context):
+    global client
+    if client == None:
+        client = boto3.client('cognito-idp')
 
-valid_user = boto3.client('cognito-idp', region)
-result = valid_user.get_user(
-    AccessToken = access_token
-)
-
-# print(result)
-
-user_name = None
-email = None
-for info in result['UserAttributes']:
-    if info['Name'] == 'sub':
-        user_name = info['Value']
-        break
-print(f"UserName:{user_name}")
-for info in result['UserAttributes']:
-    if info['Name'] == 'email':
-        email = info['Value']
-        break
-print(f"Email:{email}")
+    print(event)
+    body = event
+    username = body['username']
+    password = body['password']
+    authenticated = authenticate(username, password)
+    access_token = authenticated['AuthenticationResult']['AccessToken']
+    refresh_token = authenticated['AuthenticationResult']['RefreshToken']
+    if authenticated == ERROR:
+        return {'status': 'fail', 'msg': 'failed to authenticate user'}
+    if authenticated == SUCCESS:
+        return {'status': 'success', 'msg': 'authentication successful',
+                'AccessToken': access_token, 'RefreshToken': refresh_token}
