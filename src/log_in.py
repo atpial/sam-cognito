@@ -17,6 +17,7 @@ def log_in(username, password):
             Username=username,
             Password=password)
         print(response)
+        return response
     except client.exceptions.InvalidPasswordException as e:
         return ERROR
     except client.exceptions.NotAuthorizedException as e:
@@ -33,13 +34,14 @@ def lambda_handler(event, context):
 
     print(event)
     body = event
-    username = body['username']
-    password = body['password']
+    username = body["username"]
+    password = body["password"]
     logged_in = log_in(username, password)
     if logged_in == ERROR:
         return {'status': 'fail', 'msg': 'failed to log in'}
     if logged_in == SUCCESS:
         return {'status': 'success', 'msg': 'log in successful'}
+
 
 
 

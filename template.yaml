@@ -80,7 +80,7 @@ Resources:
         SignUp:
           Type: Api
           Properties:
-            Path:  /activities
+            Path:  /signup
             Method: post
 
   LoginFunction:
@@ -99,8 +99,8 @@ Resources:
         Login:
           Type: Api
           Properties:
-            Path:  /activities
-            Method: get
+            Path:  /login
+            Method: post
 
   ValidateFunction:
     Type: AWS::Serverless::Function
@@ -119,7 +119,7 @@ Resources:
         ConfirmSignUp:
           Type: Api
           Properties:
-            Path:  /activities/{confirm_code}
+            Path:  /signup/{confirm_code}
             Method: post
 
   AuthFunction:
@@ -153,12 +153,12 @@ Outputs:
 
   SignupFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Signup function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/activities/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/signup/"
 
   LoginFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Login function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/activities/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login/"
   
   ValidateFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Validate function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/activities/{confirm_code}"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/signup/{confirm_code}"
