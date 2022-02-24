@@ -64,19 +64,28 @@ Resources:
       Precedence: 0
       UserPoolId: !Ref UserPool
 
-  CognitoPolicy:
-    Type: 'AWS::IAM::Policy'
+  CognitoRole:
+    Type: AWS::IAM::Role
     Properties:
-      PolicyName: sam-cognito-policy
-      PolicyDocument:
+      AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
-            Action: '*'
-            Resource: 'cognito'
-      Groups:
-        - !Ref UserGroup
-  
+            Principal:
+              Federated: cognito-identity.amazonaws.com
+            Action: 
+              - "sts:AssumeRoleWithWebIdentity"
+      Policies:
+        - PolicyName: !Sub ${AppName}-CognitoPolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - "cognito-identity:*"
+                  - "cognito-sync:*"
+                Resource: '*'
+
   SignupFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -104,8 +113,8 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
-      Policies:
-        - !Ref CognitoPolicy
+      # Role: !Ref CognitoRole
+      Role: !GetAtt CognitoRole.Arn
       Events:
         Login:
           Type: Api
