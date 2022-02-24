@@ -1,11 +1,10 @@
 import os
+import json
 import boto3
-from dotenv import load_dotenv
-load_dotenv()
 
-region = os.getenv('COGNITO_REGION')
 
-client = boto3.client('cognito-idp', region)
+
+client = boto3.client('cognito-idp')
 
 ERROR = 0
 SUCCESS = 1
@@ -13,11 +12,10 @@ SUCCESS = 1
 def log_in(username, password):
     try:
         response = client.sign_up(
-            ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
+            ClientId=os.environ.get('COGNITO_USER_CLIENT_ID'),
             Username=username,
             Password=password)
         print(response)
-        return response
     except client.exceptions.InvalidPasswordException as e:
         return ERROR
     except client.exceptions.NotAuthorizedException as e:
@@ -28,12 +26,9 @@ def log_in(username, password):
     return SUCCESS
 
 def lambda_handler(event, context):
-    global client
-    if client == None:
-        client = boto3.client('cognito-idp', region)
 
     print(event)
-    body = event
+    body = json.loads(event['body'])
     username = body["username"]
     password = body["password"]
     logged_in = log_in(username, password)

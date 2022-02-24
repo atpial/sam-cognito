@@ -1,11 +1,8 @@
 import os
 import boto3
-from dotenv import load_dotenv
-load_dotenv()
+import json
 
-region = os.getenv('COGNITO_REGION')
-
-client = boto3.client('cognito-idp', region)
+client = boto3.client('cognito-idp')
 
 ERROR = 0
 SUCCESS = 1
@@ -13,14 +10,16 @@ SUCCESS = 1
 def authenticate(username, password):
     try:
         response = client.initiate_auth(
-            ClientId=os.getenv('COGNITO_USER_CLIENT_ID'),
+            ClientId=os.environ.get('COGNITO_USER_CLIENT_ID'),
             AuthFlow = 'USER_PASSWORD_AUTH',
             Username=username,
             Password=password)
+        print(response)
         access_token = response['AuthenticationResult']['AccessToken']
         refresh_token = response['AuthenticationResult']['RefreshToken']
         print('AccessToken: ',access_token)
         print('RefreshToken: ',refresh_token)
+        return access_token, refresh_token
     except client.exceptions.UserNotFoundException as e:
         return ERROR
     except client.exceptions.UserNotConfirmedException as e:
@@ -31,19 +30,13 @@ def authenticate(username, password):
     return SUCCESS
     
 def lambda_handler(event, context):
-    global client
-    if client == None:
-        client = boto3.client('cognito-idp')
 
     print(event)
-    body = event
+    body = json.loads(event['body'])
     username = body['username']
     password = body['password']
     authenticated = authenticate(username, password)
-    access_token = authenticated['AuthenticationResult']['AccessToken']
-    refresh_token = authenticated['AuthenticationResult']['RefreshToken']
     if authenticated == ERROR:
         return {'status': 'fail', 'msg': 'failed to authenticate user'}
     if authenticated == SUCCESS:
-        return {'status': 'success', 'msg': 'authentication successful',
-                'AccessToken': access_token, 'RefreshToken': refresh_token}
+        return {'status': 'success', 'msg': 'authentication successful'}

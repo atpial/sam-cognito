@@ -1,11 +1,8 @@
 import os
 import boto3
-from dotenv import load_dotenv
-load_dotenv()
+import json
 
-region = os.getenv('COGNITO_REGION')
-
-client = boto3.client('cognito-idp', region)
+client = boto3.client('cognito-idp')
 
 ERROR = 0
 SUCCESS = 1
@@ -14,7 +11,7 @@ USER_EXISTS = 2
 def confirm_log_in(username, confirm_code):
     try:
         response = client.confirm_sign_up(
-        ClientId=os.getenv("COGNITO_USER_CLIENT_ID"),
+        ClientId=os.environ.get("COGNITO_USER_CLIENT_ID"),
         Username=username,
         ConfirmationCode=confirm_code)
         print(response)
@@ -25,15 +22,12 @@ def confirm_log_in(username, confirm_code):
     except Exception as e:
         print(e)
         return ERROR
-    return SUCCESS
+    return response
 
 def lambda_handler(event, context):
-    global client
-    if client == None:
-        client = boto3.client('cognito-idp', region)
 
     print(event)
-    body = event
+    body = json.loads(event['body'])
     username = body['username']
     confirm_code = body['confirm_code']
     confirmed = confirm_log_in(username, confirm_code)

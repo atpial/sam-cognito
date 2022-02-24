@@ -71,12 +71,10 @@ Resources:
       Handler: sign_up.lambda_handler
       Runtime: python3.8
       CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
       Events:
-        CognitoTrigger:
-          Type: Cognito
-          Properties:
-            Trigger: PreSignUp
-            UserPool: !Ref UserPool
         SignUp:
           Type: Api
           Properties:
@@ -90,12 +88,10 @@ Resources:
       Handler: log_in.lambda_handler
       Runtime: python3.8
       CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
       Events:
-        CognitoTrigger:
-          Type: Cognito
-          Properties:
-            Trigger: PreAuthentication
-            UserPool: !Ref UserPool
         Login:
           Type: Api
           Properties:
@@ -129,6 +125,9 @@ Resources:
       Handler: auth.lambda_handler
       Runtime: python3.8
       CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
       Events:
         CognitoTrigger:
           Type: Cognito
