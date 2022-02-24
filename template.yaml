@@ -63,6 +63,19 @@ Resources:
       Description: User Group
       Precedence: 0
       UserPoolId: !Ref UserPool
+
+  CognitoPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: sam-cognito-policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: '*'
+            Resource: 'cognito'
+      Groups:
+        - !Ref UserGroup
   
   SignupFunction:
     Type: AWS::Serverless::Function
@@ -91,6 +104,8 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Policies:
+        - !Ref CognitoPolicy
       Events:
         Login:
           Type: Api
@@ -105,13 +120,10 @@ Resources:
       Handler: validate.lambda_handler
       Runtime: python3.8
       CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
       Events:
-        CognitoTrigger:
-          Type: Cognito
-          Properties:
-            Trigger: PostConfirmation
-            # Trigger: PreAuthentication
-            UserPool: !Ref UserPool
         ConfirmSignUp:
           Type: Api
           Properties:
@@ -128,12 +140,12 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
-      Events:
-        CognitoTrigger:
-          Type: Cognito
-          Properties:
-            Trigger: PostAuthentication
-            UserPool: !Ref UserPool
+      # Events:
+      #   CognitoTrigger:
+      #     Type: Cognito
+      #     Properties:
+      #       Trigger: PreAuthentication
+      #       UserPool: !Ref UserPool
 
 Outputs:
   UserPoolId:
