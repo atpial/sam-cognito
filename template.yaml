@@ -64,27 +64,97 @@ Resources:
       Precedence: 0
       UserPoolId: !Ref UserPool
 
+  # CognitoRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Federated: cognito-identity.amazonaws.com
+  #           Action: 
+  #             - "sts:AssumeRoleWithWebIdentity"
+  #     Policies:
+  #       - PolicyName: !Sub ${AppName}-CognitoPolicy
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Effect: Allow
+  #               Action: 
+  #                 - "cognito-identity:*"
+  #                 - "cognito-sync:*"
+  #               Resource: '*'
+
   CognitoRole:
     Type: AWS::IAM::Role
     Properties:
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Principal:
-              Federated: cognito-identity.amazonaws.com
+              Service:
+                - 'lambda.amazonaws.com'
+                - 'mediaconvert.amazonaws.com'
+                - 'cloudfront.amazonaws.com'
+                - !Sub "states.${AWS::Region}.amazonaws.com"
+                - 'mediapackage.amazonaws.com'
+                - 'rds.amazonaws.com'
+                - 'secretsmanager.amazonaws.com'
+                - 'dax.amazonaws.com'
             Action: 
-              - "sts:AssumeRoleWithWebIdentity"
+              - 'sts:AssumeRole'
       Policies:
-        - PolicyName: !Sub ${AppName}-CognitoPolicy
+        - PolicyName: root
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: Allow
                 Action: 
+                  - "acm:*"
+                  - "application-autoscaling:*"
+                  - "cloudwatch:*"
+                  - "cloudformation:*"
                   - "cognito-identity:*"
+                  - "cognito-idp:*"
                   - "cognito-sync:*"
+                  - "cloudfront-vod:*"
+                  - "dynamodb:*"
+                  - "dax:*"
+                  - "datapipeline:*"
+                  - "ec2:*"
+                  - "iam:*"
+                  - "kms:*"
+                  - "kinesis:*"
+                  - "lambda:*"
+                  - "logs:*"
+                  - "mediaconvert:*"
+                  - "mediapackage-vod:*"
+                  - "mobiletargeting:*"
+                  - "outposts:*"
+                  - "pi:*"
+                  - "rds:*"
+                  - "redshift:*"
+                  - "resource-groups:*"
+                  - "s3:*"
+                  - "secretsmanager:*"
+                  - "sns:*"
+                  - "sqs:*"
+                  - "ses:*"
+                  - "states:*"
+                  - "tag:*"
+                  - "chime:*"
+                  - "execute-api:*"
+                  - "events:*"
+                  - "appconfig:*"
                 Resource: '*'
+              - Effect: Allow
+                Action:
+                  - "rds-db:connect"
+                Resource: !Sub "arn:aws:rds:us-west-2:${AWS::AccountId}:db-proxy:*/*"
 
   SignupFunction:
     Type: AWS::Serverless::Function
@@ -166,6 +236,10 @@ Outputs:
   UserPoolClientId:
     Description: "Application client ID"
     Value: !Ref UserPoolClient
+
+  CognitoRole:
+    Description: "Cognito Role Arn"
+    Value: !GetAtt CognitoRole.Arn
 
   AuthUrl:
     Description: "URL used for authentication"
