@@ -64,28 +64,6 @@ Resources:
       Precedence: 0
       UserPoolId: !Ref UserPool
 
-  # CognitoRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: "2012-10-17"
-  #       Statement:
-  #         - Effect: Allow
-  #           Principal:
-  #             Federated: cognito-identity.amazonaws.com
-  #           Action: 
-  #             - "sts:AssumeRoleWithWebIdentity"
-  #     Policies:
-  #       - PolicyName: !Sub ${AppName}-CognitoPolicy
-  #         PolicyDocument:
-  #           Version: "2012-10-17"
-  #           Statement:
-  #             - Effect: Allow
-  #               Action: 
-  #                 - "cognito-identity:*"
-  #                 - "cognito-sync:*"
-  #               Resource: '*'
-
   CognitoRole:
     Type: AWS::IAM::Role
     Properties:
@@ -114,47 +92,11 @@ Resources:
             Statement:
               - Effect: Allow
                 Action: 
-                  - "acm:*"
-                  - "application-autoscaling:*"
                   - "cloudwatch:*"
-                  - "cloudformation:*"
                   - "cognito-identity:*"
                   - "cognito-idp:*"
                   - "cognito-sync:*"
-                  - "cloudfront-vod:*"
-                  - "dynamodb:*"
-                  - "dax:*"
-                  - "datapipeline:*"
-                  - "ec2:*"
-                  - "iam:*"
-                  - "kms:*"
-                  - "kinesis:*"
-                  - "lambda:*"
-                  - "logs:*"
-                  - "mediaconvert:*"
-                  - "mediapackage-vod:*"
-                  - "mobiletargeting:*"
-                  - "outposts:*"
-                  - "pi:*"
-                  - "rds:*"
-                  - "redshift:*"
-                  - "resource-groups:*"
-                  - "s3:*"
-                  - "secretsmanager:*"
-                  - "sns:*"
-                  - "sqs:*"
-                  - "ses:*"
-                  - "states:*"
-                  - "tag:*"
-                  - "chime:*"
-                  - "execute-api:*"
-                  - "events:*"
-                  - "appconfig:*"
                 Resource: '*'
-              - Effect: Allow
-                Action:
-                  - "rds-db:connect"
-                Resource: !Sub "arn:aws:rds:us-west-2:${AWS::AccountId}:db-proxy:*/*"
 
   SignupFunction:
     Type: AWS::Serverless::Function
@@ -166,6 +108,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
       Events:
         SignUp:
           Type: Api
@@ -183,7 +126,6 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
-      # Role: !Ref CognitoRole
       Role: !GetAtt CognitoRole.Arn
       Events:
         Login:
@@ -202,29 +144,13 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
       Events:
         ConfirmSignUp:
           Type: Api
           Properties:
             Path:  /signup/{confirm_code}
             Method: post
-
-  AuthFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Timeout: 5
-      Handler: auth.lambda_handler
-      Runtime: python3.8
-      CodeUri: src/
-      Environment:
-        Variables:
-          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
-      # Events:
-      #   CognitoTrigger:
-      #     Type: Cognito
-      #     Properties:
-      #       Trigger: PreAuthentication
-      #       UserPool: !Ref UserPool
 
 Outputs:
   UserPoolId:
