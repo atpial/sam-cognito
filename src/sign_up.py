@@ -28,6 +28,11 @@ def lambda_handler(event, context):
         signed_up = sign_up(username, password)
         return{
             'statusCode': 200,
+            'headers': {
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': 'https://www.example.com',
+            'Access-Control-Allow-Methods': 'PUT,POST,GET'
+        },
             'body': json.dumps({
             'message': 'sign up successful. To confirm please check email for confirmation code.',
             'value': signed_up
