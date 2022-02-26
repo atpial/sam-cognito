@@ -16,11 +16,11 @@ def sign_up(username, password):
         },
     ],        
     )
-    print(response)
+    print('response: ',response)
     return response
 
 def lambda_handler(event, context):
-    print(event)
+    # print(event)
     body = json.loads(event['body'])
     username = body["username"]
     password = body["password"]
@@ -28,21 +28,30 @@ def lambda_handler(event, context):
         signed_up = sign_up(username, password)
         return{
             'statusCode': 200,
+            'body': json.dumps({
             'message': 'sign up successful. To confirm please check email for confirmation code.',
             'value': signed_up
+            })
         }
     except client.exceptions.UsernameExistsException as e:
         return {
             'statusCode': 400,
+            'body': json.dumps({
             'message': 'Username already exists'
+            })
     }
     except client.exceptions.InvalidPasswordException as e:
         return {
             'statusCode': 400,
+            'body': json.dumps({
             'message': 'Password is invalid. Please check again.'
+            })
         }
     except Exception as e:
         print(e)
         return{
-            'message': 'Unknown Error'
+            'statusCode': 400,
+            'body': json.dumps({
+            'message': 'Some error occured. Please try again.'
+            })
         }

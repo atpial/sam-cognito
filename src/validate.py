@@ -25,22 +25,31 @@ def lambda_handler(event, context):
         confirmed = confirm_log_in(username, confirm_code)
         return{
             'statusCode': 200,
+            'body': json.dumps({
             'message': 'Sign up is confirmed',
             'value': confirmed
+            })
         }
     except client.exceptions.CodeMismatchException as e:
         return{
             'statusCode': 400,
+            'body': json.dumps({
             'message': 'confirmation code did not match.',
+            })
         }
     except client.exceptions.ExpiredCodeException as e:
         return{
             'statusCode': 400,
+            'body': json.dumps({
             'message': 'confirmation code is expired.',
+            })
         }
     except Exception as e:
         print(e)
         return{
-            'message': 'Unknown Error'
+            'statusCode': 400,
+            'body': json.dumps({
+            'message': 'Some error occured. Please try again.'
+            })
         }
 

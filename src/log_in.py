@@ -9,8 +9,8 @@ def authenticate(username, password):
         ClientId=os.environ.get('COGNITO_USER_CLIENT_ID'),
         AuthFlow = 'USER_PASSWORD_AUTH',
         AuthParameters={
-        'Username': username,
-        'Password': password
+        'USERNAME': username,
+        'PASSWORD': password
          }
     )
     print(response)
@@ -30,21 +30,37 @@ def lambda_handler(event, context):
         }
         return{
             'statusCode': 200,
+            'body': json.dumps({
             'message': 'log in successful.',
             'token': token
+            })
         }
     except client.exceptions.UserNotConfirmedException as e:
         return {
             'statusCode': 400,
+            'body': json.dumps({
             'message': 'User not confirmed yet. Please check email for confirmation code'
+            })
     }
-    except client.exceptions.InvalidPasswordException as e:
+    except client.exceptions.UserNotFoundException as e:
         return {
             'statusCode': 400,
-            'message': 'Password is invalid. Please check again.'
+            'body': json.dumps({
+            'message': 'User could not be found.Please check username/password.'
+            })
+        }
+    except client.exceptions.NotAuthorizedException as e:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+            'message': 'Username or password is incorrect.Please try again.'
+            })
         }
     except Exception as e:
         print(e)
         return{
-            'message': 'Unknown Error'
+            'statusCode': 400,
+            'body': json.dumps({
+            'message': 'Some error occured. Please try again.'
+            })
         }
