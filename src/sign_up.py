@@ -29,6 +29,7 @@ def lambda_handler(event, context):
         return{
             'statusCode': 200,
             'message': 'sign up successful. To confirm please check email for confirmation code.',
+            'value': signed_up
         }
     except client.exceptions.UsernameExistsException as e:
         return {

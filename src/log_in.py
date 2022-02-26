@@ -8,14 +8,13 @@ def authenticate(username, password):
     response = client.initiate_auth(
         ClientId=os.environ.get('COGNITO_USER_CLIENT_ID'),
         AuthFlow = 'USER_PASSWORD_AUTH',
-        Username=username,
-        Password=password)
+        AuthParameters={
+        'Username': username,
+        'Password': password
+         }
+    )
     print(response)
-    access_token = response['AuthenticationResult']['AccessToken']
-    refresh_token = response['AuthenticationResult']['RefreshToken']
-    print('AccessToken: ',access_token)
-    print('RefreshToken: ',refresh_token)
-    return access_token, refresh_token
+    return response
 
 def lambda_handler(event, context):
     print(event)
@@ -24,10 +23,15 @@ def lambda_handler(event, context):
     password = body["password"]
     try:
         authenticated = authenticate(username, password)
-        print(authenticated)
+        token = {
+            'access_token' : authenticated['AuthenticationResult']['AccessToken'],
+            'refresh_token' : authenticated['AuthenticationResult']['RefreshToken'],
+            'id_token': authenticated['AuthenticationResult']['IdToken']
+        }
         return{
             'statusCode': 200,
             'message': 'log in successful.',
+            'token': token
         }
     except client.exceptions.UserNotConfirmedException as e:
         return {

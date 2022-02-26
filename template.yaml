@@ -12,6 +12,10 @@ Parameters:
   UserEmail:
     Type: String
     Description: Admin email address
+  # UserTableName:
+  #   Type: String
+  #   Description: Dynamodb Table name
+  #   Default: "DbTable"
 
 Resources:
   UserPool:
@@ -96,6 +100,7 @@ Resources:
                   - "cognito-identity:*"
                   - "cognito-idp:*"
                   - "cognito-sync:*"
+                  - "dynamodb:*"
                 Resource: '*'
 
   SignupFunction:
@@ -108,6 +113,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+          # TABLE: !Ref UserTable          
       Role: !GetAtt CognitoRole.Arn
       Events:
         SignUp:
@@ -126,6 +132,7 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+          # TABLE: !Ref UserTable
       Role: !GetAtt CognitoRole.Arn
       Events:
         Login:
@@ -144,13 +151,37 @@ Resources:
       Environment:
         Variables:
           COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+          # TABLE: !Ref UserTable
       Role: !GetAtt CognitoRole.Arn
       Events:
         ConfirmSignUp:
           Type: Api
           Properties:
-            Path:  /signup/{confirm_code}
+            Path:  /confirm_signup
             Method: post
+
+  # UserTable:
+  #   Type: AWS::DynamoDB::Table
+  #   Properties:
+  #     TableName: !Sub "${AppName}-${UserTableName}"
+  #     AttributeDefinitions:
+  #       -
+  #         AttributeName: "PK"
+  #         AttributeType: "S"
+  #       -
+  #         AttributeName: "SK"
+  #         AttributeType: "S"
+  #     KeySchema:
+  #       -
+  #         AttributeName: "PK"
+  #         KeyType: "HASH"
+  #       -
+  #         AttributeName: "SK"
+  #         KeyType: "RANGE"
+  #     ProvisionedThroughput:
+  #       ReadCapacityUnits: "5"
+  #       WriteCapacityUnits: "5"
+
 
 Outputs:
   UserPoolId:
@@ -181,4 +212,4 @@ Outputs:
   
   ValidateFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Validate function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/signup/{confirm_code}"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/confirm_signup/"
