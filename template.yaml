@@ -176,6 +176,48 @@ Resources:
             Method: post
             RestApiId: !Ref DefaultApi
 
+
+
+  # ForgotPwdFunction:
+  #   Type: AWS::Serverless::Function
+  #   Properties:
+  #     Timeout: 5
+  #     Handler: sign_up.lambda_handler
+  #     Runtime: python3.8
+  #     CodeUri: src/
+  #     Environment:
+  #       Variables:
+  #         COGNITO_USER_CLIENT_ID: !Ref UserPoolClient         
+  #     Role: !GetAtt CognitoRole.Arn
+  #     Events:
+  #       SignUp:
+  #         Type: Api
+  #         Properties:
+  #           Path:  /forgot_password
+  #           Method: post
+  #           RestApiId: !Ref DefaultApi
+
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: sll-storage-bucket
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: 
+              - '*'
+            AllowedOrigins: 
+              - '*'
+            AllowedMethods:
+              - PUT
+              - POST 
+              - DELETE
+              - GET
+            AllowedOrigins: 
+              - '*'
+            ExposedHeaders:
+              - ETag
+              - x-amz-meta-custom-header
+
 Outputs:
   UserPoolId:
     Description: "User pool ID"
@@ -202,3 +244,11 @@ Outputs:
   ValidateFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Validate function"
     Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/confirm_signup/"
+
+  # ForgotPwdFunctionApi:
+  #   Description: "API Gateway endpoint URL for Prod stage for forgot password function"
+  #   Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/forgot_password/"
+
+  BucketName:
+    Value: !Ref S3Bucket
+    Description: SLLStorageBucket Amazon S3 bucket with CORS enabled.

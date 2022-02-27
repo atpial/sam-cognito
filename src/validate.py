@@ -41,6 +41,13 @@ def lambda_handler(event, context):
             'message': 'confirmation code did not match.',
             })
         }
+    except client.exceptions.CodeDeliveryFailureException as e:
+        return {
+            'statusCode': 400,
+            'body': json.dumps({
+            'message': 'failed to send confirmation code to the email.'
+            })
+        }
     except client.exceptions.ExpiredCodeException as e:
         return{
             'statusCode': 400,
