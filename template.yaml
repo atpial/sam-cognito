@@ -99,6 +99,26 @@ Resources:
                   - "dynamodb:*"
                 Resource: '*'
 
+  DefaultApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'*'"
+        DEFAULT_5XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'*'"
+      Cors:
+        AllowMethods: "'*'"
+        AllowHeaders: "'*'"
+        AllowOrigin: "'*'"
+
   SignupFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -116,6 +136,7 @@ Resources:
           Properties:
             Path:  /signup
             Method: post
+            RestApiId: !Ref DefaultApi
 
   LoginFunction:
     Type: AWS::Serverless::Function
@@ -134,6 +155,7 @@ Resources:
           Properties:
             Path:  /login
             Method: post
+            RestApiId: !Ref DefaultApi
 
   ValidateFunction:
     Type: AWS::Serverless::Function
@@ -152,6 +174,7 @@ Resources:
           Properties:
             Path:  /confirm_signup
             Method: post
+            RestApiId: !Ref DefaultApi
 
 Outputs:
   UserPoolId:
@@ -164,22 +187,18 @@ Outputs:
     Description: "Application client ID"
     Value: !Ref UserPoolClient
 
-  CognitoRole:
-    Description: "Cognito Role Arn"
-    Value: !GetAtt CognitoRole.Arn
-
   AuthUrl:
     Description: "URL used for authentication"
     Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
 
   SignupFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Signup function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/signup/"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/signup/"
 
   LoginFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Login function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login/"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login/"
   
   ValidateFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Validate function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/confirm_signup/"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/confirm_signup/"

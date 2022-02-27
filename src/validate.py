@@ -26,9 +26,8 @@ def lambda_handler(event, context):
         return{
             'statusCode': 200,
             'headers': {
-            'Access-Control-Allow-Headers': 'Content-Type',
-            'Access-Control-Allow-Origin': 'https://www.example.com',
-            'Access-Control-Allow-Methods': 'PUT,POST,GET'
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json'
         },
             'body': json.dumps({
             'message': 'Sign up is confirmed',
