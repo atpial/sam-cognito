@@ -30,28 +30,39 @@ def lambda_handler(event, context):
             'Content-Type': 'application/json'
         },
             'body': json.dumps({
+            'error': False,
+            'code':'SIGNUP_CONFIRMED',
             'message': 'Sign up is confirmed',
             'value': confirmed
             })
         }
     except client.exceptions.CodeMismatchException as e:
+        print(e)
         return{
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code':'INCORRECT_CODE',
             'message': 'confirmation code did not match.',
             })
         }
     except client.exceptions.CodeDeliveryFailureException as e:
+        print(e)
         return {
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code':'CODE_DELIVERY_FAILED',
             'message': 'failed to send confirmation code to the email.'
             })
         }
     except client.exceptions.ExpiredCodeException as e:
+        print(e)
         return{
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code':'CODE_EXPIRED',
             'message': 'confirmation code is expired.',
             })
         }
@@ -60,6 +71,8 @@ def lambda_handler(event, context):
         return{
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code': 'UNKNOWN_ERROR',
             'message': 'Some error occured. Please try again.'
             })
         }

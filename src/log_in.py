@@ -35,28 +35,39 @@ def lambda_handler(event, context):
             'Content-Type': 'application/json'
         },
             'body': json.dumps({
+            'error': False,
+            'code':'LOG_IN_SUCCESSFUL',
             'message': 'log in successful.',
             'token': token
             })
         }
     except client.exceptions.UserNotConfirmedException as e:
+        print(e)
         return {
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code': 'USER_NOT_CONFIRMED',  
             'message': 'User not confirmed yet. Please check email for confirmation code'
             })
     }
     except client.exceptions.UserNotFoundException as e:
+        print(e)
         return {
             'statusCode': 400,
             'body': json.dumps({
-            'message': 'User could not be found.Please check username/password.'
+            'error': True,
+            'code': 'USER_NOT_FOUND',
+            'message': 'User could not be found.Please Sign up first.'
             })
         }
     except client.exceptions.NotAuthorizedException as e:
+        print(e)
         return {
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code': 'USER_NOT_AUTHORIZED',
             'message': 'Username or password is incorrect.Please try again.'
             })
         }
@@ -65,6 +76,8 @@ def lambda_handler(event, context):
         return{
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code': 'UNKNOWN_ERROR',
             'message': 'Some error occured. Please try again.'
             })
         }

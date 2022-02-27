@@ -33,20 +33,28 @@ def lambda_handler(event, context):
             'Content-Type': 'application/json'
         },
             'body': json.dumps({
-            'message': 'sign up successful. To confirm please check email for confirmation code.',
+            'error': False,
+            'code':'SIGN_UP_SUCCESSFUL',
+            'message': 'Sign up is successful. To confirm please check email for confirmation code.',
             'value': signed_up
             })
         }
     except client.exceptions.UsernameExistsException as e:
+        print(e)
         return {
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code': 'USERNAME_EXISTS',
             'message': 'Username already exists'
             })
     }
     except client.exceptions.InvalidPasswordException as e:
+        print(e)
         return {
             'statusCode': 400,
+            'error': True,
+            'code': 'INVALID_PASSWORD',
             'body': json.dumps({
             'message': 'Password is invalid. Please check again.'
             })
@@ -56,6 +64,8 @@ def lambda_handler(event, context):
         return{
             'statusCode': 400,
             'body': json.dumps({
+            'error': True,
+            'code': 'UNKNOWN_ERROR',
             'message': 'Some error occured. Please try again.'
             })
         }
