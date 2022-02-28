@@ -14,6 +14,7 @@ Parameters:
     Description: Admin email address
 
 Resources:
+        # ///---------------User Pool-----------------/// 
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -68,6 +69,7 @@ Resources:
       Precedence: 0
       UserPoolId: !Ref UserPool
 
+        # ///---------------Roles and Policies-----------------/// 
   CognitoRole:
     Type: AWS::IAM::Role
     Properties:
@@ -103,6 +105,38 @@ Resources:
                   - "dynamodb:*"
                 Resource: '*'
 
+  # S3BucketAccessRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     ManagedPolicyArns:
+  #       - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - Effect: Allow
+  #           Principal:
+  #             Service:
+  #               - 'lambda.amazonaws.com'
+  #               - 'mediaconvert.amazonaws.com'
+  #               - 'cloudfront.amazonaws.com'
+  #               - !Sub "states.${AWS::Region}.amazonaws.com"
+  #               - 'mediapackage.amazonaws.com'
+  #               - 'rds.amazonaws.com'
+  #               - 'secretsmanager.amazonaws.com'
+  #               - 'dax.amazonaws.com'
+  #           Action: 
+  #             - 'sts:AssumeRole'
+  #     Policies:
+  #       - PolicyName: root
+  #         PolicyDocument:
+  #           Version: "2012-10-17"
+  #           Statement:
+  #             - Effect: Allow
+  #               Action: 
+  #                 - "s3:*"
+  #               Resource: '*'
+ 
+        # ///---------------API's-----------------/// 
   DefaultApi:
     Type: AWS::Serverless::Api
     Properties:
@@ -123,6 +157,7 @@ Resources:
         AllowHeaders: "'*'"
         AllowOrigin: "'*'"
 
+        # ///---------------Lambda Functions-----------------/// 
   SignupFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -237,6 +272,7 @@ Resources:
             Method: post
             RestApiId: !Ref DefaultApi
 
+        # ///---------------Bucket-----------------/// 
   S3Bucket:
     Type: 'AWS::S3::Bucket'
     Properties:
@@ -259,6 +295,7 @@ Resources:
               - x-amz-meta-custom-header
 
 Outputs:
+
   UserPoolId:
     Description: "User pool ID"
     Value: !Ref UserPool
@@ -269,9 +306,9 @@ Outputs:
     Description: "Application client ID"
     Value: !Ref UserPoolClient
 
-  AuthUrl:
-    Description: "URL used for authentication"
-    Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
+  # AuthUrl:
+  #   Description: "URL used for authentication"
+  #   Value: !Sub https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com
 
   SignupFunctionApi:
     Description: "API Gateway endpoint URL for Prod stage for Signup function"
