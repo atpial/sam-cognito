@@ -17,6 +17,10 @@ Resources:
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
+      # AccountRecoverySetting:
+      #   RecoveryMechanisms: 
+      #     Name: email
+      #     Priority: 1
       UserPoolName: !Sub ${AppName}-UserPool
       Policies:
         PasswordPolicy:
@@ -176,26 +180,62 @@ Resources:
             Method: post
             RestApiId: !Ref DefaultApi
 
+  ReValidateFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 5
+      Handler: re_validate.lambda_handler
+      Runtime: python3.8
+      CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
+      Events:
+        ConfirmSignUp:
+          Type: Api
+          Properties:
+            Path:  /resend_confirm_code
+            Method: post
+            RestApiId: !Ref DefaultApi
 
+  ForgotPwdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 5
+      Handler: forgot_pwd.lambda_handler
+      Runtime: python3.8
+      CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient         
+      Role: !GetAtt CognitoRole.Arn
+      Events:
+        SignUp:
+          Type: Api
+          Properties:
+            Path:  /forgot_password
+            Method: post
+            RestApiId: !Ref DefaultApi
 
-  # ForgotPwdFunction:
-  #   Type: AWS::Serverless::Function
-  #   Properties:
-  #     Timeout: 5
-  #     Handler: sign_up.lambda_handler
-  #     Runtime: python3.8
-  #     CodeUri: src/
-  #     Environment:
-  #       Variables:
-  #         COGNITO_USER_CLIENT_ID: !Ref UserPoolClient         
-  #     Role: !GetAtt CognitoRole.Arn
-  #     Events:
-  #       SignUp:
-  #         Type: Api
-  #         Properties:
-  #           Path:  /forgot_password
-  #           Method: post
-  #           RestApiId: !Ref DefaultApi
+  ConfirmForgotPwdFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 5
+      Handler: confirm_Fpwd.lambda_handler
+      Runtime: python3.8
+      CodeUri: src/
+      Environment:
+        Variables:
+          COGNITO_USER_CLIENT_ID: !Ref UserPoolClient
+      Role: !GetAtt CognitoRole.Arn
+      Events:
+        ConfirmSignUp:
+          Type: Api
+          Properties:
+            Path:  /confirm_forgot_pwd
+            Method: post
+            RestApiId: !Ref DefaultApi
 
   S3Bucket:
     Type: 'AWS::S3::Bucket'
@@ -242,12 +282,20 @@ Outputs:
     Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/login/"
   
   ValidateFunctionApi:
-    Description: "API Gateway endpoint URL for Prod stage for Validate function"
+    Description: "API Gateway endpoint URL for Prod stage for Validate user with Confirmation code function"
     Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/confirm_signup/"
 
-  # ForgotPwdFunctionApi:
-  #   Description: "API Gateway endpoint URL for Prod stage for forgot password function"
-  #   Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/forgot_password/"
+  ReValidateFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for Resend Confirmation code function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/resend_confirm_code/"
+
+  ForgotPwdFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for forgot password function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/forgot_password/"
+
+  ConfirmForgotPwdFunction:
+    Description: "API Gateway endpoint URL for Prod stage for Confirm forgot password function"
+    Value: !Sub "https://${DefaultApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/confirm_forgot_pwd/"
 
   BucketName:
     Value: !Ref S3Bucket
