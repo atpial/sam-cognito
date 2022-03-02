@@ -19,14 +19,16 @@ def lambda_handler(event, context):
     print(event)
     body = json.loads(event['body'])
     username = body['username']
+    header = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+        'Content-Type': 'application/json',        
+    }
     try:
         confirmed = resend_confirm_code(username)
         return{
             'statusCode': 200,
-            'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-        },
+            'headers': header,
             'body': json.dumps({
             'error': False,
             'code':'RESENDT_CONFIRMATIONCODE',
@@ -38,6 +40,7 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code': 'USER_NOT_AUTHORIZED',
@@ -48,6 +51,7 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code':'CODE_DELIVERY_FAILED',
@@ -58,6 +62,7 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code': 'USER_NOT_FOUND',            
@@ -68,6 +73,7 @@ def lambda_handler(event, context):
         print(e)
         return{
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code': 'UNKNOWN_ERROR',

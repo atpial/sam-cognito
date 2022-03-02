@@ -16,14 +16,16 @@ def lambda_handler(event, context):
     # print(event)
     body = json.loads(event['body'])
     username = body["username"]
+    header = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+        'Content-Type': 'application/json',        
+    }    
     try:
         result = forgot_pwd(username)
         return{
             'statusCode': 200,
-            'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-        },
+            'headers': header,
             'body': json.dumps({
             'error': False,
             'code': 'FORGOT_PASS_CODE_DELIVERED',

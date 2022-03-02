@@ -23,14 +23,16 @@ def lambda_handler(event, context):
     username = body['username']
     confirm_code = body['confirm_code']
     password = body['password']
+    header = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+        'Content-Type': 'application/json',        
+    }
     try:
         confirmed = confirm_forgot_pwd(username, confirm_code, password)
         return{
             'statusCode': 200,
-            'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-        },
+            'headers': header,
             'body': json.dumps({
             'error': False,
             'code':'PASSWORD_CHANGED',
@@ -42,6 +44,7 @@ def lambda_handler(event, context):
         print(e)
         return{
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code':'INCORRECT_CODE',
@@ -52,6 +55,7 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code':'CODE_DELIVERY_FAILED',
@@ -62,6 +66,7 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code': 'USER_NOT_AUTHORIZED',
@@ -72,6 +77,7 @@ def lambda_handler(event, context):
         print(e)
         return{
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code':'CODE_EXPIRED',
@@ -82,6 +88,7 @@ def lambda_handler(event, context):
         print(e)
         return{
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code': 'UNKNOWN_ERROR',

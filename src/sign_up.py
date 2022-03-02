@@ -24,14 +24,16 @@ def lambda_handler(event, context):
     body = json.loads(event['body'])
     username = body["username"]
     password = body["password"]
+    header = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+        'Content-Type': 'application/json',        
+    }
     try:
         signed_up = sign_up(username, password)
         return{
             'statusCode': 200,
-            'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-        },
+            'headers': header,
             'body': json.dumps({
             'error': False,
             'code':'SIGN_UP_SUCCESSFUL',
@@ -43,6 +45,7 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code': 'USERNAME_EXISTS',
@@ -53,6 +56,7 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 400,
+            'headers': header,
             'error': True,
             'code': 'INVALID_PASSWORD',
             'body': json.dumps({
@@ -63,6 +67,7 @@ def lambda_handler(event, context):
         print(e)
         return{
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code': 'UNKNOWN_ERROR',

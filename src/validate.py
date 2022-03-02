@@ -21,14 +21,16 @@ def lambda_handler(event, context):
     body = json.loads(event['body'])
     username = body['username']
     confirm_code = body['confirm_code']
+    header = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+        'Content-Type': 'application/json',        
+    }
     try:
         confirmed = confirm_log_in(username, confirm_code)
         return{
             'statusCode': 200,
-            'headers': {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'application/json'
-        },
+            'headers': header,
             'body': json.dumps({
             'error': False,
             'code':'SIGNUP_CONFIRMED',
@@ -40,6 +42,7 @@ def lambda_handler(event, context):
         print(e)
         return{
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code':'INCORRECT_CODE',
@@ -50,6 +53,7 @@ def lambda_handler(event, context):
         print(e)
         return {
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code':'CODE_DELIVERY_FAILED',
@@ -60,6 +64,7 @@ def lambda_handler(event, context):
         print(e)
         return{
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code':'CODE_EXPIRED',
@@ -70,6 +75,7 @@ def lambda_handler(event, context):
         print(e)
         return{
             'statusCode': 400,
+            'headers': header,
             'body': json.dumps({
             'error': True,
             'code': 'UNKNOWN_ERROR',
